@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Products</title>
+</head>
+<body>
+<h1>Products</h1>
+
+<!-- Display Products -->
+<div id="products">
+    <h2>Products</h2>
+    <ul id="product-list">
+        <!-- Products will be listed here -->
+    </ul>
+</div>
+
+<!-- Pagination Controls -->
+<div id="pagination">
+    <button id="prev-button">Previous</button>
+    <span id="page-info"></span>
+    <button id="next-button">Next</button>
+</div>
+
+<script>
+    let page = 1;
+    const pageSize = 10;
+    let data;
+
+    // Function to retrieve the categoryId from the query parameter
+    function getCategoryIdFromQuery() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get('categoryId');
+    }
+
+    // Function to fetch and display products by category
+    function fetchProductsByCategory(categoryId, page, pageSize) {
+        fetch(`http://localhost:8081/shop/products?categoryId=${categoryId}&page=${page}&pageSize=${pageSize}`)
+            .then(response => response.json())
+            .then(result => {
+                data = result;
+
+                const productList = document.getElementById('product-list');
+                productList.innerHTML = ''; // Clear previous data
+
+                data.content.forEach(product => {
+                    const listItem = document.createElement('li');
+                    // Parse the "images" string into a JavaScript object
+                    const images = JSON.parse(product.images);
+
+                    listItem.innerHTML = `
+            <strong>Product ID:</strong> ${product.productId}<br>
+            <strong>Product Name:</strong> ${product.productName}<br>
+            <strong>Description:</strong> ${product.description}<br>
+            <strong>Sale Price:</strong> ${product.salePrice}<br>
+            <strong>Category ID:</strong> ${product.categoryId}<br>
+            <strong>Digital:</strong> ${product.digital}<br>
+            <strong>Shipping Cost:</strong> ${product.shippingCost}<br>
+            <strong>Customer Review Count:</strong> ${product.customerReviewCount}<br><br>
+        `;
+
+                    // Add images if available
+                    if (images) {
+                        const imageList = document.createElement('ul');
+                        images.forEach(image => {
+                            const imageListItem = document.createElement('li');
+                            const img = document.createElement('img');
+                            img.src = image.href;
+                            imageListItem.appendChild(img);
+                            imageList.appendChild(imageListItem);
+                        });
+                        listItem.appendChild(imageList);
+                    }
+
+                    productList.appendChild(listItem);
+                });
+
+                // Update pagination controls
+                const pageInfo = document.getElementById('page-info');
+                pageInfo.textContent = `Page ${page} of ${data.totalPages}`;
+
+                const prevButton = document.getElementById('prev-button');
+                prevButton.disabled = page === 1;
+
+                const nextButton = document.getElementById('next-button');
+                nextButton.disabled = page === data.totalPages;
+            })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+            });
+    }
+
+    // Get the categoryId from the query parameter
+    const categoryId = getCategoryIdFromQuery();
+    if (categoryId) {
+        // Fetch and display products for the specified category
+        fetchProductsByCategory(categoryId, page, pageSize);
+
+        // Pagination controls event listeners
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+
+        prevButton.addEventListener('click', () => {
+            if (page > 1) {
+                page--;
+                fetchProductsByCategory(categoryId, page, pageSize);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (page < data.totalPages) {
+                page++;
+                fetchProductsByCategory(categoryId, page, pageSize);
+            }
+        });
+    } else {
+        console.error('Category ID not found in query parameter.');
+    }
+</script>
+</body>
+</html>

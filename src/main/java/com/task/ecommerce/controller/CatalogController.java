@@ -16,6 +16,7 @@ public class CatalogController {
     @Autowired
     private CatalogService catelogService;
 
+    @CrossOrigin(origins = "http://localhost:8082")
     @GetMapping("/categories")
     public ResponseEntity<Page<CategoryDTO>> getAllCategories(@RequestParam(defaultValue = "1") int page,
                                                               @RequestParam(defaultValue = "10") int pageSize) {
@@ -27,6 +28,7 @@ public class CatalogController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:8082")
     @GetMapping("/products")
     public ResponseEntity<Page<ProductDTO>> getProductsByCategory(
             @RequestParam Integer categoryId,
