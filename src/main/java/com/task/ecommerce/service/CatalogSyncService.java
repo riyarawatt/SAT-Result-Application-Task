@@ -7,14 +7,9 @@ import com.task.ecommerce.model.Product;
 import com.task.ecommerce.repository.CategoryRepository;
 import com.task.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,24 +17,10 @@ import java.util.stream.Collectors;
 public class CatalogSyncService {
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
     private ProductRepository productRepository;
-
-    public List<CategoryDTO> fetchCategoriesFromExternalAPI(String apiUrl) {
-        // Use RestTemplate to fetch categories from the external API
-        ResponseEntity<CategoryDTO[]> response = new RestTemplate().getForEntity(apiUrl, CategoryDTO[].class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return Arrays.asList(response.getBody());
-        } else {
-            return Collections.emptyList();
-        }
-    }
 
     @Transactional
     public void saveCategories(List<CategoryDTO> categoryDTOList) {
@@ -54,17 +35,6 @@ public class CatalogSyncService {
                 .collect(Collectors.toList());
 
         categoryRepository.saveAll(categoryList);
-    }
-
-    public List<ProductDTO> fetchProductsFromExternalAPI(String apiUrl) {
-        // Fetch products from the external API using restTemplate
-        ProductDTO[] productDTOs = restTemplate.getForObject(apiUrl, ProductDTO[].class);
-
-        if (productDTOs != null) {
-            return List.of(productDTOs);
-        }
-
-        return List.of();
     }
 
     public void saveProducts(List<ProductDTO> productDTOList) {

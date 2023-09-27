@@ -24,15 +24,14 @@ public class CatalogSyncController {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${external.api.url}") // Load the API URL from application.properties or application.yml
-    private String apiUrl;
-
     @Value("${external.api.key}") // Load the API key from application.properties or application.yml
     private String apiKey;
 
     @GetMapping("/categories")
     public ResponseEntity<String> fetchAndSaveCategories() {
         try {
+            String apiUrl = "https://stageapi.monkcommerce.app/task/categories";
+
             // Create an HTTP client (RestTemplate)
             // Set the API key in the request headers
             HttpHeaders headers = new HttpHeaders();
@@ -70,6 +69,7 @@ public class CatalogSyncController {
     @GetMapping("/products")
     public ResponseEntity<String> fetchAndSaveProducts() {
         try {
+            String apiUrl = "https://stageapi.monkcommerce.app/task/products";
 
             // Set up HttpHeaders with x-api-key
             HttpHeaders headers = new HttpHeaders();
